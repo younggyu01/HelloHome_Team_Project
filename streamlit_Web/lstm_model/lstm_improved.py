@@ -96,5 +96,3 @@ class AnimalShelterPredictor:
         sorted_predictions = sorted(final_predictions, key=lambda x: x['predicted_probability_percent'], reverse=True)
         
         return sorted_predictions
-
-# 이 파일은 더 이상 직접 실행되지 않으므로 main 블록은 제거합니다.
