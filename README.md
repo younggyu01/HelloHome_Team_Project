@@ -1,9 +1,10 @@
-# 🐾 Hello Home: 전국 유기동물 통합 조회 및 분석 대시보드
+# 🐾 Hello Home: 유기동물 입양 정보 분석 및 예측 대시보드
 
-![Header Image](https://raw.githubusercontent.com/cooperear/SK_Shielders_4th_rookie_1st_Team_Project/refs/heads/main/Hello%20Home.jpeg) 
+![Project Logo](streamlit_Web/data/HelloHome_ICON_%ED%88%AC%EB%AA%85.png)
 
+**Hello Home**은 전국 유기동물 보호소의 데이터를 실시간으로 분석하고, 입양률을 예측하여 예비 입양자들이 따뜻한 가족을 더 쉽게 만날 수 있도록 돕는 웹 애플리케이션입니다.
 
-*<p align="center">전국 보호소의 유기동물 정보를 한눈에 확인하고, 따뜻한 가족이 되어주세요.</p>*
+이 프로젝트는 SK쉴더스 루키즈 과정의 팀 프로젝트로, 데이터 수집부터 분석, 시각화, 예측 모델링, 그리고 웹 개발까지 전 과정을 다루고 있습니다.
 
 ---
 
