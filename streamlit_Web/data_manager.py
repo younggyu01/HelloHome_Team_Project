@@ -23,7 +23,7 @@ def get_config():
     if not os.path.exists(CONFIG_PATH):
         st.error("설정 파일(config.ini)을 찾을 수 없습니다.")
         return None
-    config.read(CONFIG_PATH)
+    config.read(CONFIG_PATH, encoding='utf-8')  # ✅ 인코딩 지정
     return config
 
 # --- DB 및 API 클라이언트 ---
