@@ -1,0 +1,11 @@
+streamlit
+pandas
+numpy
+sqlalchemy
+mysql-connector-python
+plotly
+folium
+streamlit-folium
+tensorflow
+scikit-learn
+requests
