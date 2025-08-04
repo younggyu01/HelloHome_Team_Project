@@ -1,6 +1,6 @@
 # 🐾 Hello Home: 전국 유기동물 통합 조회 및 분석 대시보드
 
-![Header Image](https://i.imgur.com/your-header-image.png) 
+![Header Image](https://raw.githubusercontent.com/cooperear/SK_Shielders_4th_rookie_1st_Team_Project/refs/heads/main/HelloHome_ICON_%ED%88%AC%EB%AA%85.png) 
 *<p align="center">전국 보호소의 유기동물 정보를 한눈에 확인하고, 따뜻한 가족이 되어주세요.</p>*
 
 ---
