@@ -136,8 +136,14 @@ port = your_port
 
 **4. 데이터베이스 테이블 생성 및 데이터 적재**
 
-- 애플리케이션에 필요한 데이터를 DB에 미리 적재해야 합니다. (예: `update_data.py`와 같은 데이터 파이프라인 스크립트 실행)
-
+```bash
+# streamlit_Web/ 디렉토리로 이동하여 앱 실행
+cd streamlit_Web
+python update_data.py
+python update_web_data.py
+```
+- 데이터 업데이트 파일을 먼저 실행하셔야 테이블이 자동 생성 됩니다.
+  
 **5. 애플리케이션 실행**
 
 ```bash
