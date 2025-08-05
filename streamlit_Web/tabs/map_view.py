@@ -60,23 +60,17 @@ def render_shelter_table(filtered_shelters: pd.DataFrame):
         }
     )
 
-def handle_map_click(map_event, tab_labels):
+def handle_map_click(map_event):
     """지도 클릭 이벤트를 처리하고 탭을 전환합니다."""
     if map_event and map_event.get("last_object_clicked_tooltip"):
         clicked_shelter = map_event["last_object_clicked_tooltip"]
         if st.session_state.get("selected_shelter") != clicked_shelter:
             st.session_state.selected_shelter = clicked_shelter
-            try:
-                detail_tab_idx = tab_labels.index("📋 보호소 상세 현황")
-                st.session_state.active_tab_idx = detail_tab_idx
-                st.rerun()
-            except (ValueError, IndexError):
-                st.error("상세 현황 탭을 찾을 수 없습니다.")
-            except Exception:
-                # st.rerun() can sometimes cause a harmless exception.
-                pass
+            # 다음 실행 시 탭 전환을 위해 세션 상태를 설정합니다.
+            st.session_state.next_tab = "📋 보호소 상세 현황"
+            st.rerun()
 
-def show(filtered_shelters: pd.DataFrame, filtered_animals: pd.DataFrame, tab_labels: list):
+def show(filtered_shelters: pd.DataFrame, filtered_animals: pd.DataFrame):
     """지도 및 분석 탭의 전체 UI를 표시합니다."""
     st.subheader("🗺️ 보호소 지도")
 
@@ -93,5 +87,5 @@ def show(filtered_shelters: pd.DataFrame, filtered_animals: pd.DataFrame, tab_la
         # This can happen on fast re-runs, safe to ignore.
         pass
 
-    handle_map_click(map_event, tab_labels)
+    handle_map_click(map_event)
     render_shelter_table(filtered_shelters)

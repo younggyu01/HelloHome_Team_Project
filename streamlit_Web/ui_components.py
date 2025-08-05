@@ -3,6 +3,17 @@ from datetime import datetime, timedelta
 from utils import get_image_as_base64
 import os
 import pandas as pd
+import requests
+import base64
+
+def fetch_image_as_base64(url):
+    """이미지 URL을 요청해 base64로 인코딩된 문자열 반환"""
+    try:
+        response = requests.get(url, timeout=3)
+        if response.status_code == 200:
+            return base64.b64encode(response.content).decode()
+    except:
+        return None
 
 def render_header():
     """
@@ -26,35 +37,37 @@ def render_header():
 
 def render_sidebar(sido_list):
     """
-    사이드바 필터를 렌더링하고 사용자 선택사항을 반환합니다.
+    사이드바 필터를 렌더링합니다. 필터 값은 st.session_state를 통해 관리됩니다.
     """
     st.sidebar.header("🔍 검색 및 필터")
 
+    # 시도 변경 시 시군구 선택을 초기화하는 콜백 함수
+    def on_sido_change():
+        st.session_state.sigungu_filter = "전체"
+
     with st.sidebar.expander("🗓️ 공고일 기준 검색", expanded=True):
-        start_date = st.date_input("시작일", datetime.now() - timedelta(days=30))
-        end_date = st.date_input("종료일", datetime.now())
+        st.date_input("시작일", key="start_date")
+        st.date_input("종료일", key="end_date")
 
     with st.sidebar.expander("🐾 축종 선택", expanded=True):
-        species_filter = st.multiselect(
+        st.multiselect(
             "축종 선택",
             options=["개", "고양이", "기타"],
-            default=[],
+            key="species_filter",
             help="선택하지 않으면 전체 축종이 포함됩니다."
         )
 
     sido_names = ["전체"] + [s['name'] for s in sido_list]
     with st.sidebar.expander("📍 지역 선택", expanded=True):
-        selected_sido_name = st.selectbox("시도 선택", sido_names)
-        selected_sigungu_name = "전체"
-        if selected_sido_name != "전체":
-            selected_sido_code = next((s['code'] for s in sido_list if s['name'] == selected_sido_name), None)
+        st.selectbox("시도 선택", sido_names, key="sido_filter", on_change=on_sido_change)
+        
+        if st.session_state.sido_filter != "전체":
+            selected_sido_code = next((s['code'] for s in sido_list if s['name'] == st.session_state.sido_filter), None)
             if selected_sido_code:
                 from data_manager import get_sigungu_list
                 sigungu_list = get_sigungu_list(selected_sido_code)
                 sigungu_names = ["전체"] + [s['name'] for s in sigungu_list]
-                selected_sigungu_name = st.selectbox("시군구 선택", sigungu_names)
-
-    return start_date, end_date, selected_sido_name, selected_sigungu_name, species_filter
+                st.selectbox("시군구 선택", sigungu_names, key="sigungu_filter")
 
 def render_kpi_cards(shelter_count, animal_count, long_term_count, adopted_count):
     """
@@ -84,27 +97,30 @@ def render_tabs(tabs):
     """
     애플리케이션의 메인 탭을 렌더링하고 현재 활성화된 탭을 반환합니다.
     """
-    tab_labels = [tab["label"] for tab in tabs]
-    
+    original_labels = [tab["label"] for tab in tabs]
     favorites_count = len(st.session_state.get('favorites', []))
-    for i, label in enumerate(tab_labels):
+
+    def format_label(label):
         if "찜한 동물" in label:
-            tab_labels[i] = f"❤️ 찜한 동물 ({favorites_count})"
+            return f"❤️ 찜한 동물 ({favorites_count})"
+        return label
 
-    def on_tab_change():
-        st.session_state.active_tab_idx = tab_labels.index(st.session_state.tab_selection)
+    # st.radio가 직접 상태를 관리하도록 key를 사용합니다.
+    # active_tab_label 세션 상태는 선택된 탭의 "고정된" 이름을 저장합니다.
+    if 'active_tab_label' not in st.session_state:
+        st.session_state.active_tab_label = original_labels[0]
 
-    st.radio(
+    selected_label = st.radio(
         "탭 선택",
-        tab_labels,
-        index=st.session_state.get("active_tab_idx", 0),
-        key="tab_selection",
+        options=original_labels,      # 내부적으로는 고정된 라벨 목록을 사용
+        key='active_tab_label',         # 상태 저장을 위해 고유 키를 사용
+        format_func=format_label,       # 사용자에게 보여줄 형식을 지정
         horizontal=True,
-        on_change=on_tab_change,
         label_visibility="collapsed"
     )
     
-    active_tab_idx = st.session_state.get('active_tab_idx', 0)
+    # st.radio는 선택된 옵션의 실제 값(고정된 라벨)을 반환합니다.
+    active_tab_idx = original_labels.index(selected_label)
     return tabs[active_tab_idx]
 
 def handle_favorite_button(animal: pd.Series, context: str):
@@ -120,12 +136,20 @@ def handle_favorite_button(animal: pd.Series, context: str):
             st.rerun()
 
 def render_animal_card(animal: pd.Series, context: str, show_shelter: bool = False):
-    """개별 동물 정보를 카드 형태로 렌더링합니다."""
+    """개별 동물 정보를 카드 형태로 렌더링합니다. (base64 프록시 렌더링 방식)"""
     cols = st.columns([1, 3])
     with cols[0]:
         display_name = animal.get('kind_name', animal.get('notice_no', '이름 없음'))
-        image_url = animal.get("image_url") if pd.notna(animal.get("image_url")) else "https://via.placeholder.com/150?text=사진+없음"
-        st.image(image_url, width=150, caption=display_name)
+        image_url = animal.get("image_url")
+
+        if pd.isna(image_url):
+            st.image("https://via.placeholder.com/150?text=사진+없음", width=150)
+        else:
+            img_b64 = fetch_image_as_base64(image_url)
+            if img_b64:
+                st.image(f"data:image/jpeg;base64,{img_b64}", width=150, caption=display_name)
+            else:
+                st.image("https://via.placeholder.com/150?text=사진+없음", width=150)
 
     with cols[1]:
         handle_favorite_button(animal, context)
