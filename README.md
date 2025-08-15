@@ -1,6 +1,6 @@
 # 🐾 Hello Home: 전국 유기동물 통합 조회 및 분석 대시보드
 
-<Header Image><img width="482" height="565" alt="image" src="https://github.com/user-attachments/assets/33483dc2-94dd-412d-9e06-a29dbb7a78b1" />
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/bcaa213c-4e4f-4e88-8070-9e97b91c71d6" />
 
 *<p align="center">전국 보호소의 유기동물 정보를 한눈에 확인하고, 따뜻한 가족이 되어주세요.</p>*
 
